@@ -1,4 +1,3 @@
-import pandas as pd
 import re
 import nltk
 from nltk.corpus import stopwords
@@ -25,31 +24,31 @@ class TextPreprocessor:
     def __init__(self):
         pass
 
-    def lower_case(sentence):
+    def lower_case(self, sentence):
         return sentence.lower()
 
-    def remove_html_tags(sentence):
+    def remove_html_tags(self, sentence):
         return re.sub(r'<[^<>]*>', '', sentence)
 
-    def remove_email_addresses(sentence):
+    def remove_email_addresses(self, sentence):
         return re.sub(r'\S*@\S*\s?', '', sentence)
     
-    def remove_urls(sentence):
+    def remove_urls(self, sentence):
         return re.sub(r'www\.[^\s]+|http[^\s]+', '', sentence)
 
-    def remove_puncts(sentence):
+    def remove_puncts(self, sentence):
         return re.sub(r'[^\w\s]', '', sentence)
 
-    def remove_stop_words(sentence):
+    def remove_stop_words(self, sentence):
         tokens = word_tokenize(sentence.lower())  # Tokenize and lowercase
         filtered = [word for word in tokens if word.isalnum() and word not in self.stop_words]
         return ' '.join(filtered)
 
-    def lemattize_words(sentence):
-        lemmatized = [lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(sentence)]
+    def lemattize_words(self, sentence):
+        lemmatized = [self.lemmatizer.lemmatize(w) for w in self.w_tokenizer.tokenize(sentence)]
         return ' '.join(lemmatized)
 
-    def preprocess_text(df):
+    def preprocess_text(self, df):
 
         # Text cleaning
         df["review"] = df["review"].apply(self.lower_case)
@@ -70,68 +69,6 @@ class TextPreprocessor:
 
  
 
-    def save_pickle():
+    def save_pickle(self):
         pass
     
-
-
-
-
-
-
-# Remove stop words
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-
-
-
-# Sample text
-text = "This is a sample sentence showing stopword removal."
-
-# Get English stopwords and tokenize
-stop_words = set(stopwords.words('english'))
-tokens = word_tokenize(text.lower())
-
-# Remove stopwords
-filtered_tokens = [word for word in tokens if word not in stop_words]
-
-print("Original:", tokens)
-print("Filtered:", filtered_tokens)
-
-
-
-# Download required NLTK data (only needed once)
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('punkt_tab')
-
-
-# Set of English stopwords
-stop_words = set(stopwords.words('english'))
-
-# Function to remove stopwords from a single sentence
-def remove_stopwords(sentence):
-    tokens = word_tokenize(sentence.lower())  # Tokenize and lowercase
-    filtered = [word for word in tokens if word.isalnum() and word not in stop_words]
-    return ' '.join(filtered)
-
-# Apply to the 'text' column
-df['review'] = df['review'].apply(remove_stopwords)
-
-# View result
-df
-
-# Lemmatize the words.
-
-
-w_tokenizer = nltk.tokenize.WhitespaceTokenizer()
-lemmatizer = nltk.stem.WordNetLemmatizer()
-
-def lemmatize_text(text):
-     lemmatized = [lemmatizer.lemmatize(w) for w in w_tokenizer.tokenize(text)]
-     return ' '.join(lemmatized)
-
-df['review'] = df.review.apply(lemmatize_text)
-
-df.to_csv("tmp.csv")
