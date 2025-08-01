@@ -1,3 +1,4 @@
+import os
 import re
 import nltk
 from nltk.corpus import stopwords
@@ -69,6 +70,11 @@ class TextPreprocessor:
 
  
 
-    def save_pickle(self):
-        pass
+    def save_pickle(self, df):
+        output_dir="outputs"
+        output_file="output_dataframe.pkl"        
+        os.makedirs(output_dir, exist_ok=True)
+        
+        df.to_pickle(f"{output_dir}/{output_file}")
+        print("DataFrame successfully saved to {output_dir}/{output_file}")
     
