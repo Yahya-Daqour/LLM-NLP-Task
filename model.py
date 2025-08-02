@@ -4,7 +4,7 @@ from sklearn.svm import LinearSVC
 from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout, Bidirectional
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
@@ -46,12 +46,12 @@ class SVMModel(SentimentClassifierModel):
         return X, y
     
 class LSTMModel(SentimentClassifierModel):
-    def __init__(self, vocab_size=10000, max_len=200, embedding_dim=128):
+    def __init__(self, vocab_size=10000, max_len=2500, embedding_dim=128):
         super().__init__()
         self.vocab_size = vocab_size
         self.max_len = max_len
         self.embedding_dim = embedding_dim
-        self.tokenizer = Tokenizer(num_words=self.vocab_size, oov_token="<OOV>")
+        self.tokenizer_ = Tokenizer(num_words=self.vocab_size, oov_token="<OOV>")
         self.model = None
 
     def tokenizer(self, review, sentiment):
@@ -65,8 +65,8 @@ class LSTMModel(SentimentClassifierModel):
         embedding = Embedding(self.vocab_size, self.embedding_dim, input_length=self.max_len)
         model = Sequential([
             embedding,
-            LSTM(128),
-            Dropout(0.2),
+            Bidirectional(LSTM(128)),
+            Dropout(0.5),
             Dense(1, activation="sigmoid")
         ])
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
@@ -80,7 +80,7 @@ class LSTMModel(SentimentClassifierModel):
             batch_size=batch_size,
             epochs=epochs,
             validation_data=validation_data,
-            verbose=2
+            verbose=1
         )
     
     def eval(self, X_test, y_test):
