@@ -7,6 +7,9 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout, Bidirectional
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+import re
 
 class SentimentClassifierModel:
     def __init__(self):
@@ -95,3 +98,48 @@ class LSTMModel(SentimentClassifierModel):
         print(classification_report(y_test, y_pred))
         print(f"False Positive Rate (FPR): {fpr:.4f}")
         print(f"False Negative Rate (FNR): {fnr:.4f}")       
+
+class GPTSentimentClassifier:
+    def __init__(self, model_name="openai-community/gpt2", shots=1):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model_name = model_name
+        self.shots = shots
+
+        self.tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        self.model = GPT2LMHeadModel.from_pretrained(model_name).to(self.device)
+        self.model.eval()
+
+    def build_prompt(self, review, df):
+        prompt = ""
+        df_shots = df[:self.shots]
+        for i in range(self.shots):
+            prompt += f"Review: {df_shots['review'][i]}\nSentiment: {df_shots['sentiment'][i]}\n\n"
+        prompt += f"Review: {review}\nSentiment:"
+        return prompt
+    
+    def classify(self, review, df, max_new_tokens=10):
+        prompt = self.build_prompt(review, df)
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                pad_token_id=self.tokenizer.eos_token_id
+            )
+        
+        decoded = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        prediction = decoded[len(prompt):].strip()
+
+        # Normalize and validate output
+        if re.search(r'\bpositive\b', prediction, re.IGNORECASE):
+            return "Positive"
+        elif re.search(r'\bnegative\b', prediction, re.IGNORECASE):
+            return "Negative"
+        else:
+            return "Unknown (Failed to classify)"
+
+
+        
+
+    
