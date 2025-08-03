@@ -70,8 +70,9 @@ if __name__== "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--models', 
-        type=str, 
+        '--models',
+        nargs="+",
+        type=str,
         choices=["svm", "lstm", "gpt2", "all"],
         required=True,
         help="Choose one or more models to run: 'svm', 'lstm', 'gpt2' or 'all'"
@@ -88,7 +89,7 @@ if __name__== "__main__":
         default="I found the movie extremely dull and uninspiring. Not worth the watch.", 
         help='Add input_review for gpt2'
         )
-
+    args = parser.parse_args()
 
     df = import_data()
 
@@ -97,13 +98,13 @@ if __name__== "__main__":
     df, df_processed = preprocess_data(df)
 
     # 2. Machine Learning model for sentiment classification
-    if "svm" in parser.models or "all" in parser.models:
+    if "svm" in args.models or "all" in args.models:
         print("*"*20, " 2. Machine Learning model for sentiment classification ", "*"*20)
         model, X_test, y_test = call_model("svm", df_processed)
         eval_model(X_test, y_test)
 
     # 3.1. LSTM Model with preprocessed data
-    if "lstm" in parser.models or "all" in parser.models:
+    if "lstm" in args.models or "all" in args.models:
         print("*"*20, " 3.1. LSTM Model with preprocessed data ", "*"*20)
         model, X_test, y_test = call_model("lstm", df_processed)
         eval_model(X_test, y_test)
@@ -114,11 +115,11 @@ if __name__== "__main__":
         eval_model(X_test, y_test)
 
     # 4. GPT-2 Classification using Prompt Engineering
-    if "gpt2" in parser.models or "all" in parser.models:
+    if "gpt2" in args.models or "all" in args.models:
         print("*"*20, " 4. GPT-2 Classification using Prompt Engineering ", "*"*20)
-        gpt2_classifier = GPTSentimentClassifier(shots=1)
+        gpt2_classifier = GPTSentimentClassifier(shots=args.shots)
         
-        review_input = parser.input_review
+        review_input = args.input_review
         sentiment = gpt2_classifier.classify(review_input, df)
-
+        print(f"Review: {review_input}")
         print(f"Predicted Sentiment: {sentiment}")    
