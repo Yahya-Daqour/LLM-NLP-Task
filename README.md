@@ -1,4 +1,5 @@
 # Sentiment Analysis Classifier
+A Python project for sentiment analysis using multiple models: SVM, LSTM, and GPT-2. You can train and evaluate any combination of models on a movie review dataset like IMDB.
 
 ## 🛠 Requirements
 
