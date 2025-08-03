@@ -2,7 +2,7 @@ import kagglehub
 import pandas as pd
 from utils import TextPreprocessor
 import os
-from model import SVMModel, LSTMModel
+from model import SVMModel, LSTMModel, GPTSentimentClassifier
 import logging
 import tensorflow as tf
 logging.basicConfig(
@@ -69,18 +69,29 @@ if __name__== "__main__":
     df = import_data()
 
     # 1.Text Processing
+    print("*"*20, " 1.Text Processing ", "*"*20)
     df, df_processed = preprocess_data(df)
 
     # 2. Machine Learning model for sentiment classification
+    print("*"*20, " 2. Machine Learning model for sentiment classification ", "*"*20)
     model, X_test, y_test = call_model("svm", df_processed)
     eval_model(X_test, y_test)
 
     # 3.1. LSTM Model with preprocessed data
+    print("*"*20, " 3.1. LSTM Model with preprocessed data ", "*"*20)
     model, X_test, y_test = call_model("lstm", df_processed)
     eval_model(X_test, y_test)
 
     # 3.2. LSTM Model with original data
+    print("*"*20, " 3.1. LSTM Model with preprocessed data ", "*"*20)
     model, X_test, y_test = call_model("lstm", df)
     eval_model(X_test, y_test)
 
     # 4. GPT-2 Classification using Prompt Engineering
+    print("*"*20, " 4. GPT-2 Classification using Prompt Engineering ", "*"*20)
+    gpt2_classifier = GPTSentimentClassifier(shots=1)
+    
+    review_input = "I found the movie extremely dull and uninspiring. Not worth the watch."
+    sentiment = gpt2_classifier.classify(review_input, df)
+
+    print(f"Predicted Sentiment: {sentiment}")    
