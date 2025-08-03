@@ -1,4 +1,4 @@
 python main.py \
-    --models gpt2 \
+    --models all \
     --shots 1 \
     --input_review "I like this film"
