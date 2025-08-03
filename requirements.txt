@@ -3,6 +3,7 @@ numpy==1.26.4
 pandas
 nltk
 scikit-learn
+tensorflow
 tensorflow[and-cuda]
 transformers
 torch
